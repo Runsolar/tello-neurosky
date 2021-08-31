@@ -17,7 +17,7 @@
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/graph1"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <com.jjoe64.graphview.GraphView
         android:id="@+id/graph1"
@@ -38,10 +38,10 @@
         android:title="Fpz EEG data"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/graph1"
-        app:layout_constraintVertical_bias="0.065" />
+        app:layout_constraintVertical_bias="0.046" />
 
     <com.jjoe64.graphview.GraphView
         android:id="@+id/graph3"
@@ -53,7 +53,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/graph2"
-        app:layout_constraintVertical_bias="0.113" />
+        app:layout_constraintVertical_bias="0.354" />
 
     <Button
         android:id="@+id/btn_start"
@@ -62,10 +62,10 @@
         android:text="start"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.247"
+        app:layout_constraintHorizontal_bias="0.058"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/graph3"
-        app:layout_constraintVertical_bias="0.717" />
+        app:layout_constraintVertical_bias="0.939" />
 
     <Button
         android:id="@+id/btn_stop"
@@ -74,10 +74,10 @@
         android:text="stop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.606"
+        app:layout_constraintHorizontal_bias="0.925"
         app:layout_constraintStart_toEndOf="@+id/btn_start"
         app:layout_constraintTop_toBottomOf="@+id/graph3"
-        app:layout_constraintVertical_bias="0.717" />
+        app:layout_constraintVertical_bias="0.939" />
 
     <TextView
         android:id="@+id/textView3"
@@ -97,8 +97,10 @@
         android:text="Neuropilot attention (RED) and meditation condition:"
         app:layout_constraintBottom_toTopOf="@+id/graph3"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/graph2" />
+        app:layout_constraintTop_toBottomOf="@+id/graph2"
+        app:layout_constraintVertical_bias="1.0" />
 
     <Switch
         android:id="@+id/switch1"
@@ -111,5 +113,86 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.909" />
+
+    <EditText
+        android:id="@+id/editTextNumber"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="300"
+        app:layout_constraintBottom_toTopOf="@+id/graph3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.572"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/graph2"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <EditText
+        android:id="@+id/editTextNumber2"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="-150"
+        app:layout_constraintBottom_toTopOf="@+id/graph3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.522"
+        app:layout_constraintStart_toEndOf="@+id/editTextNumber"
+        app:layout_constraintTop_toBottomOf="@+id/graph2"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <EditText
+        android:id="@+id/editTextNumber3"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="60"
+        app:layout_constraintBottom_toTopOf="@+id/btn_stop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.638"
+        app:layout_constraintStart_toEndOf="@+id/editTextNumber4"
+        app:layout_constraintTop_toBottomOf="@+id/graph3"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <EditText
+        android:id="@+id/editTextNumber4"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="70"
+        app:layout_constraintBottom_toTopOf="@+id/btn_start"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.572"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/graph3"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btn_set_thersholds1"
+        android:layout_width="80dp"
+        android:layout_height="38dp"
+        android:text="set"
+        app:layout_constraintBottom_toTopOf="@+id/graph3"
+        app:layout_constraintEnd_toStartOf="@+id/editTextNumber"
+        app:layout_constraintHorizontal_bias="0.646"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/graph2"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btn_set_thersholds2"
+        android:layout_width="80dp"
+        android:layout_height="38dp"
+        android:layout_marginBottom="32dp"
+        android:text="set"
+        app:layout_constraintBottom_toTopOf="@+id/btn_start"
+        app:layout_constraintEnd_toStartOf="@+id/editTextNumber4"
+        app:layout_constraintHorizontal_bias="0.681"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/graph3"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
