@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     private int timeAnalysisLength = 512; // The data for wavelet forward transform
 
     private int attentionAndMeditationDataLength = 100;
+    private int currentAttention = 0;
+    private int currentMeditation = 0;
 
     private ArrayList<Integer> rawData = new ArrayList<Integer>(Collections.nCopies(rawDataLength, 0)); // 512 Hz - 3 seconds 1536
     private ArrayList<Integer> attentionData = new ArrayList<Integer>(Collections.nCopies(attentionAndMeditationDataLength, 0));
@@ -467,8 +469,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Two blinks was detected");
                 showToast("Two blinks was detected", Toast.LENGTH_SHORT);
 
-                telloDrone.setCommand("command");
-                telloDrone.setCommand("takeoff");
+                if(telloDrone.ready && !telloDrone.isUp) {
+                    telloDrone.setCommand("command");
+                    telloDrone.setCommand("takeoff");
+                }
             }
 
             if(ThreeBlinks == 3) {
@@ -504,6 +508,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         attentionSeries.resetData(attentionPoints);
+
+        if(attention > 70 && telloDrone.isUp && currentMeditation < 50) {
+            telloDrone.setCommand("command");
+            telloDrone.setCommand("forward 20");
+        }
     }
 
     public void proccessMeditationData(int meditation) {
@@ -517,6 +526,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         meditationSeries.resetData(meditationPoints);
+
+        if(meditation > 70 && telloDrone.isUp && currentAttention < 50) {
+            telloDrone.setCommand("command");
+            telloDrone.setCommand("back 20");
+        }
     }
 
 }
