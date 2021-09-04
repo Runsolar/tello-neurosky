@@ -33,13 +33,13 @@ public class TelloDrone {
         System.out.println("Trying command "+command);
         if (!ready)
             return null;
-
+/*
         if (System.currentTimeMillis() - cooldown < 3000) {
             return null;
         } else {
             cooldown = System.currentTimeMillis();
         }
-
+*/
         new Thread(
                 new Runnable() {
                     @Override
