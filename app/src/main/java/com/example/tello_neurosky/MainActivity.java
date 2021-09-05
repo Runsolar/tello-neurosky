@@ -26,6 +26,10 @@ import com.neurosky.connection.TgStreamReader;
 import android.os.Handler;
 import android.os.Message;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -50,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
     private TgStreamReader tgStreamReader = null;
     private int badPacketCount = 0;
 
-    private int rawDataLength = 768; // A row eeg data from NeuroSky headset
-    private int timeAnalysisLength = 512; // The data for wavelet forward transform
+    private int rawDataLength = 1024; // A row eeg data from NeuroSky headset
+    private int timeAnalysisLength = 1024; // The data for wavelet forward transform
 
     private int attentionAndMeditationDataLength = 100;
     private int currentAttention = 0;
@@ -178,8 +182,8 @@ public class MainActivity extends AppCompatActivity {
         //graph1.getViewport().setScrollable(true);
 
         graph1.getViewport().setYAxisBoundsManual(true);
-        graph1.getViewport().setMinY(-rawDataLength);
-        graph1.getViewport().setMaxY(rawDataLength);
+        graph1.getViewport().setMinY(-rawDataLength/2);
+        graph1.getViewport().setMaxY(rawDataLength/2);
         // set manual X bounds
         graph1.getViewport().setXAxisBoundsManual(true);
         graph1.getViewport().setMinX(0);
@@ -403,8 +407,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Blink detection alg
-    private double maxThreshold = 400;
-    private double minThreshold = 0;
+    private double maxThreshold = 500;
+    private double minThreshold = -400;
 
     private int numbersOfSubProccessing = 0;
     private int numberOfBlinks = 0;
@@ -419,20 +423,32 @@ public class MainActivity extends AppCompatActivity {
             // add new DataPoint object to the array for each of your list entries
             dataPoints1[i] = new DataPoint(i, rawData.get(i));
 
-            if(i < timeAnalysisLength) arrTime[i] = Double.valueOf(rawData.get(i));
-            //dataPoints2[i] = new DataPoint(i, rawData.get(i));
+            //if(i < timeAnalysisLength) arrTime[i] = Double.valueOf(rawData.get(i));
+            arrTime[i] = Double.valueOf(rawData.get(i));
         }
         series1.resetData(dataPoints1);
 
-        arrHilb = t.forward(arrTime); // 1-D FWT Haar forward
-        for (int i = 0; i < arrHilb.length; ++i) {
-            // add new DataPoint object to the array for each of your list entries
-            dataPoints2[i] = new DataPoint(i, arrHilb[i]);
-        }
-        series2.resetData(dataPoints2);
+        //arrHilb = t.forward(arrTime); // 1-D FWT Haar forward
 
-        if(numbersOfSubProccessing < 15) {
-            for(int i = 15; i<40; ++i){
+        if(!calcWaveletBusy) {
+
+            new calcWavelet(arrTime);
+            try {
+                Thread.sleep(0);
+            } catch (InterruptedException e) {
+                //System.out.println("Main thread Interrupted");
+            }
+            //System.out.println("Main thread exiting.");
+
+        } else {
+            for (int i = 0; i < arrHilb.length; ++i) {
+                // add new DataPoint object to the array for each of your list entries
+                dataPoints2[i] = new DataPoint(i, arrHilb[i]);
+            }
+            series2.resetData(dataPoints2);
+
+            if(numbersOfSubProccessing < 15) {
+                for(int i = 15; i<30; ++i){
                 //if ( arrHilb[i] < minThreshold/4) {
                     if(arrHilb[i] > maxThreshold) {
                         if(arrHilb[i+1] < minThreshold) {
@@ -443,56 +459,55 @@ public class MainActivity extends AppCompatActivity {
                             //}
                         }
                     }
-                //}
+                }
+
+                if(numberOfBlinks == 2){
+                    TwoBlinks = numberOfBlinks;
+                    if(ThreeBlinks != 3) ++numbersOfSubProccessing;
+                }
+
+                if(numberOfBlinks == 3){
+                    ThreeBlinks = numberOfBlinks;
+                    ++numbersOfSubProccessing;
+                }
+                numberOfBlinks = 0;
             }
 
-            if(numberOfBlinks == 2){
-                TwoBlinks = numberOfBlinks;
-                if(ThreeBlinks != 3) ++numbersOfSubProccessing;
+            if(numbersOfSubProccessing > arrHilb.length/32) {
+                Log.d(TAG, String.valueOf(numbersOfSubProccessing));
+
+                if(TwoBlinks == 2 && ThreeBlinks != 3) {
+                    Log.d(TAG, "Two blinks was detected");
+                    showToast("Two blinks was detected", Toast.LENGTH_SHORT);
+
+                    if(telloDrone.ready && !telloDrone.isUp) {
+                        telloDrone.setCommand("command");
+                        telloDrone.setCommand("takeoff");
+                    }
+                }
+
+                if(ThreeBlinks == 3) {
+                    Log.d(TAG, "Three blinks was detected ");
+                    showToast("Three blinks was detected", Toast.LENGTH_SHORT);
+
+                    if (telloDrone.isUp) {
+                        telloDrone.setCommand("command");
+                        telloDrone.setCommand("land");
+                    }
+                }
+
+                TwoBlinks = 0;
+                ThreeBlinks = 0;
+                numbersOfSubProccessing = 0;
             }
 
-            if(numberOfBlinks == 3){
-                ThreeBlinks = numberOfBlinks;
+            if(numbersOfSubProccessing >= 15)  {
                 ++numbersOfSubProccessing;
             }
 
-            numberOfBlinks = 0;
         }
 
 
-        //if(numberOfBlinks == 3) Log.d(TAG, "Three blinks was detected ");
-
-        if(numbersOfSubProccessing > arrHilb.length * 4) {
-            Log.d(TAG, String.valueOf(numbersOfSubProccessing));
-
-            if(TwoBlinks == 2 && ThreeBlinks != 3) {
-                Log.d(TAG, "Two blinks was detected");
-                showToast("Two blinks was detected", Toast.LENGTH_SHORT);
-
-                if(telloDrone.ready && !telloDrone.isUp) {
-                    telloDrone.setCommand("command");
-                    telloDrone.setCommand("takeoff");
-                }
-            }
-
-            if(ThreeBlinks == 3) {
-                Log.d(TAG, "Three blinks was detected ");
-                showToast("Three blinks was detected", Toast.LENGTH_SHORT);
-
-                if (telloDrone.isUp) {
-                    telloDrone.setCommand("command");
-                    telloDrone.setCommand("land");
-                }
-            }
-
-            TwoBlinks = 0;
-            ThreeBlinks = 0;
-            numbersOfSubProccessing = 0;
-        }
-
-        if(numbersOfSubProccessing >= 15)  {
-            ++numbersOfSubProccessing;
-        }
 
         //++numbersOfSubProccessing;
     }
@@ -530,6 +545,35 @@ public class MainActivity extends AppCompatActivity {
         if(meditation > 70 && telloDrone.isUp && currentAttention < 50) {
             telloDrone.setCommand("command");
             telloDrone.setCommand("back 20");
+        }
+    }
+
+    private Boolean calcWaveletBusy = false;
+    //double[ ] arrHilb2 = new double[timeAnalysisLength];
+    Transform wt = new Transform( new FastWaveletTransform( new Daubechies2( ) ) );
+
+    class calcWavelet implements Runnable {
+        String name;
+        Thread t;
+        calcWavelet (double[ ] arrTime){
+            calcWaveletBusy = true;
+            name = Thread.currentThread().getName();
+            t = new Thread(this, name);
+            //System.out.println("New thread: " + t);
+            t.start();
+        }
+
+
+        public void run() {
+            try {
+                arrHilb = wt.forward(arrTime);
+                Thread.sleep(10);
+
+            }catch (InterruptedException e) {
+                //System.out.println(name + "Interrupted");
+            }
+            //System.out.println(name + " exiting.");
+            calcWaveletBusy = false;
         }
     }
 
