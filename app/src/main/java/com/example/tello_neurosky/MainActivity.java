@@ -56,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
 
     private int rawDataLength = 1024; // A row eeg data from NeuroSky headset
     private int timeAnalysisLength = 1024; // The data for wavelet forward transform
+    private int blinksSeriesBeginningEdge = 15;
+    private int blinksSeriesEndingEdge = 30;
+
+    private int blinksArrHilbLenght = blinksSeriesEndingEdge - blinksSeriesBeginningEdge;
 
     private int attentionAndMeditationDataLength = 100;
     private int currentAttention = 0;
@@ -82,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     //But before data
     double[ ] arrTime = new double[timeAnalysisLength];
     double[ ] arrHilb = new double[timeAnalysisLength];
-    Transform t = new Transform( new FastWaveletTransform( new Daubechies2( ) ) );
+    double[] blinksArrHilb = new double[blinksArrHilbLenght];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         graph3 = (GraphView) findViewById(R.id.graph3);
 
         dataPoints1 = new DataPoint[rawData.size()];
-        dataPoints2 = new DataPoint[rawData.size()];
+        dataPoints2 = new DataPoint[blinksArrHilbLenght];
 
         attentionPoints = new DataPoint[attentionData.size()];
         meditationPoints = new DataPoint[meditationData.size()];
@@ -206,12 +210,12 @@ public class MainActivity extends AppCompatActivity {
         graph2.getViewport().setMaxY(timeAnalysisLength);
         // set manual X bounds
         graph2.getViewport().setXAxisBoundsManual(true);
-        graph2.getViewport().setMinX(15);
-        graph2.getViewport().setMaxX(30);
+        graph2.getViewport().setMinX(0);
+        graph2.getViewport().setMaxX(blinksArrHilbLenght);
 
-        for (int i = 0; i < rawData.size(); ++i) {
+        for (int i = 0; i < blinksArrHilbLenght; ++i) {
             // add new DataPoint object to the array for each of your list entries
-            dataPoints2[i] = new DataPoint(i, rawData.get(i));
+            dataPoints2[i] = new DataPoint(i, 0);
         }
         series2 = new LineGraphSeries<DataPoint>(dataPoints2);
         series2.setTitle("Wavelet analysis");
@@ -407,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Blink detection alg
-    private double maxThreshold = 500;
+    private double maxThreshold = 1000;
     private double minThreshold = -400;
 
     private int numbersOfSubProccessing = 0;
@@ -430,9 +434,14 @@ public class MainActivity extends AppCompatActivity {
 
         if(!calcWaveletBusy) {
 
-            // Calling a thread fpr 1-D Fast Wavelet Transform Daubechies2 forward
+            // Calling a thread fpr 1-D Fast Wavelet Transform of Daubechies2 forward
             new calcWavelet(arrTime);
+
             try {
+
+                if(numbersOfSubProccessing > 2*blinksArrHilbLenght) numbersOfSubProccessing = 0;
+                else ++numbersOfSubProccessing;
+
                 Thread.sleep(0);
             } catch (InterruptedException e) {
                 //System.out.println("Main thread Interrupted");
@@ -440,40 +449,37 @@ public class MainActivity extends AppCompatActivity {
             //System.out.println("Main thread exiting.");
 
         } else {
-            for (int i = 0; i < arrHilb.length; ++i) {
+            for (int i = 0; i < blinksArrHilbLenght; ++i) {
                 // add new DataPoint object to the array for each of your list entries
-                dataPoints2[i] = new DataPoint(i, arrHilb[i]);
+                dataPoints2[i] = new DataPoint(i, arrHilb[i + blinksSeriesBeginningEdge]);
+                blinksArrHilb[i] = arrHilb[i + blinksSeriesBeginningEdge];
             }
             series2.resetData(dataPoints2);
 
-            if(numbersOfSubProccessing < 15) {
-                for(int i = 15; i<30; ++i){
-                //if ( arrHilb[i] < minThreshold/4) {
-                    if(arrHilb[i] > maxThreshold) {
-                        if(arrHilb[i+1] < minThreshold) {
-                            //if(arrHilb[i+3] > minThreshold/2) {
-                                ++numberOfBlinks;
-                                //Log.d(TAG, String.valueOf(numberOfBlinks));
-                                //i+=3;
-                            //}
-                        }
+            for(int i = 0; i < blinksArrHilbLenght-2; ++i){
+                //if ( blinksArrHilb[i] < minThreshold/4) {
+                if(blinksArrHilb[i] > maxThreshold) {
+                    if(blinksArrHilb[i+1] < minThreshold) {
+                        //if(blinksArrHilb[i+3] > minThreshold/2) {
+                        ++numberOfBlinks;
+                        //Log.d(TAG, String.valueOf(numberOfBlinks));
+                        //i+=3;
+                        //}
                     }
                 }
-
-                if(numberOfBlinks == 2){
-                    TwoBlinks = numberOfBlinks;
-                    if(ThreeBlinks != 3) ++numbersOfSubProccessing;
-                }
-
-                if(numberOfBlinks == 3){
-                    ThreeBlinks = numberOfBlinks;
-                    ++numbersOfSubProccessing;
-                }
-                numberOfBlinks = 0;
             }
 
-            if(numbersOfSubProccessing > arrHilb.length/32) {
-                Log.d(TAG, String.valueOf(numbersOfSubProccessing));
+            if(numberOfBlinks == 2){
+                TwoBlinks = numberOfBlinks;
+            }
+
+            if(numberOfBlinks == 3){
+                ThreeBlinks = numberOfBlinks;
+            }
+
+            numberOfBlinks = 0;
+
+            if(numbersOfSubProccessing == 2*blinksArrHilbLenght) {
 
                 if(TwoBlinks == 2 && ThreeBlinks != 3) {
                     Log.d(TAG, "Two blinks was detected");
@@ -497,13 +503,7 @@ public class MainActivity extends AppCompatActivity {
 
                 TwoBlinks = 0;
                 ThreeBlinks = 0;
-                numbersOfSubProccessing = 0;
             }
-
-            if(numbersOfSubProccessing >= 15)  {
-                ++numbersOfSubProccessing;
-            }
-
         }
 
 
