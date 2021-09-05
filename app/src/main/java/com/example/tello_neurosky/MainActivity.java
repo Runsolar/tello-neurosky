@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // TgStreamHandler
+    // TgStreamHandler, see more and thx for 11A11 https://github.com/11A11/MindWaveMobile
     private final TgStreamHandler callbackFunc = new TgStreamHandler() {
 
         @Override
@@ -428,10 +428,9 @@ public class MainActivity extends AppCompatActivity {
         }
         series1.resetData(dataPoints1);
 
-        //arrHilb = t.forward(arrTime); // 1-D FWT Haar forward
-
         if(!calcWaveletBusy) {
 
+            // Calling a thread fpr 1-D Fast Wavelet Transform Daubechies2 forward
             new calcWavelet(arrTime);
             try {
                 Thread.sleep(0);
@@ -547,11 +546,10 @@ public class MainActivity extends AppCompatActivity {
             telloDrone.setCommand("back 20");
         }
     }
-
+    // The Daubechies2 fast wavelet transform in another thread for fast capacities
+    // Seem more and thx for graetz23 https://github.com/graetz23/JWave
     private Boolean calcWaveletBusy = false;
-    //double[ ] arrHilb2 = new double[timeAnalysisLength];
     Transform wt = new Transform( new FastWaveletTransform( new Daubechies2( ) ) );
-
     class calcWavelet implements Runnable {
         String name;
         Thread t;
@@ -562,7 +560,6 @@ public class MainActivity extends AppCompatActivity {
             //System.out.println("New thread: " + t);
             t.start();
         }
-
 
         public void run() {
             try {
