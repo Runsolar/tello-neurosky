@@ -546,7 +546,7 @@ public class MainActivity extends AppCompatActivity {
             telloDrone.setCommand("back 20");
         }
     }
-    // The Daubechies2 fast wavelet transform in another thread for fast capacities
+    // The Daubechies 2 fast wavelet transform in another thread for better capacities
     // Seem more and thx for graetz23 https://github.com/graetz23/JWave
     private Boolean calcWaveletBusy = false;
     Transform wt = new Transform( new FastWaveletTransform( new Daubechies2( ) ) );
