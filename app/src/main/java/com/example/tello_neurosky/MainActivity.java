@@ -438,10 +438,6 @@ public class MainActivity extends AppCompatActivity {
             new calcWavelet(arrTime);
 
             try {
-
-                if(numbersOfSubProccessing > 2*blinksArrHilbLenght) numbersOfSubProccessing = 0;
-                else ++numbersOfSubProccessing;
-
                 Thread.sleep(0);
             } catch (InterruptedException e) {
                 //System.out.println("Main thread Interrupted");
@@ -501,14 +497,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                numbersOfSubProccessing = 0;
                 TwoBlinks = 0;
                 ThreeBlinks = 0;
             }
+
+            if(numbersOfSubProccessing > 2*blinksArrHilbLenght) numbersOfSubProccessing = 0;
+            else ++numbersOfSubProccessing;
         }
 
-
-
-        //++numbersOfSubProccessing;
     }
 
     public void proccessAttentionData(int attention) {
