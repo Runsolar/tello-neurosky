@@ -412,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Blink detection alg
     private double maxThreshold = 1000;
-    private double minThreshold = -400;
+    private double minThreshold = -500;
 
     private int numbersOfSubProccessing = 0;
     private int numberOfBlinks = 0;
@@ -452,30 +452,40 @@ public class MainActivity extends AppCompatActivity {
             }
             series2.resetData(dataPoints2);
 
-            for(int i = 0; i < blinksArrHilbLenght-2; ++i){
-                //if ( blinksArrHilb[i] < minThreshold/4) {
-                if(blinksArrHilb[i] > maxThreshold) {
-                    if(blinksArrHilb[i+1] < minThreshold) {
-                        //if(blinksArrHilb[i+3] > minThreshold/2) {
-                        ++numberOfBlinks;
-                        //Log.d(TAG, String.valueOf(numberOfBlinks));
-                        //i+=3;
-                        //}
+            if(numbersOfSubProccessing < blinksArrHilbLenght) {
+
+                numberOfBlinks = 0;
+                for(int i = 0; i < blinksArrHilbLenght-2; ++i){
+                    //if ( blinksArrHilb[i] < minThreshold/4) {
+                    if(blinksArrHilb[i] > maxThreshold) {
+                        if(blinksArrHilb[i+1] < minThreshold) {
+                            //if(blinksArrHilb[i+3] > minThreshold/2) {
+                            ++numberOfBlinks;
+                            //Log.d(TAG, String.valueOf(numberOfBlinks));
+                            //i+=3;
+                            //}
+                        }
                     }
                 }
+
+                if(numberOfBlinks == 1 && (TwoBlinks != 2 || ThreeBlinks != 3)){
+                    numbersOfSubProccessing = 0;
+                }
+
+                if(numberOfBlinks == 2){
+                    TwoBlinks = numberOfBlinks;
+                }
+
+                if(numberOfBlinks == 3){
+                    ThreeBlinks = numberOfBlinks;
+                }
+
+                ++numbersOfSubProccessing;
+            } else {
+                ++numbersOfSubProccessing;
             }
 
-            if(numberOfBlinks == 2){
-                TwoBlinks = numberOfBlinks;
-            }
-
-            if(numberOfBlinks == 3){
-                ThreeBlinks = numberOfBlinks;
-            }
-
-            numberOfBlinks = 0;
-
-            if(numbersOfSubProccessing == 2*blinksArrHilbLenght) {
+            if(numbersOfSubProccessing > 2 * blinksArrHilbLenght) {
 
                 if(TwoBlinks == 2 && ThreeBlinks != 3) {
                     Log.d(TAG, "Two blinks was detected");
@@ -501,9 +511,6 @@ public class MainActivity extends AppCompatActivity {
                 TwoBlinks = 0;
                 ThreeBlinks = 0;
             }
-
-            if(numbersOfSubProccessing > 2*blinksArrHilbLenght) numbersOfSubProccessing = 0;
-            else ++numbersOfSubProccessing;
         }
 
     }
