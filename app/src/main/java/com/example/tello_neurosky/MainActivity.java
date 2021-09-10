@@ -177,6 +177,10 @@ public class MainActivity extends AppCompatActivity {
                     telloDrone.ready = true;
                 }
                 else {
+                    if (telloDrone.isUp) {
+                        telloDrone.setCommand("command");
+                        telloDrone.setCommand("land");
+                    }
                     telloDrone.ready = false;
                 }
             }
@@ -455,29 +459,33 @@ public class MainActivity extends AppCompatActivity {
             if(numbersOfSubProccessing < blinksArrHilbLenght) {
 
                 numberOfBlinks = 0;
-                for(int i = 0; i < blinksArrHilbLenght-2; ++i){
-                    //if ( blinksArrHilb[i] < minThreshold/4) {
-                    if(blinksArrHilb[i] > maxThreshold) {
-                        if(blinksArrHilb[i+1] < minThreshold) {
-                            //if(blinksArrHilb[i+3] > minThreshold/2) {
-                            ++numberOfBlinks;
-                            //Log.d(TAG, String.valueOf(numberOfBlinks));
-                            //i+=3;
-                            //}
+                for(int i = 0; i < blinksArrHilbLenght-4; ++i){
+                    if ( blinksArrHilb[i] < minThreshold/4) {
+                        if(blinksArrHilb[i+1] > maxThreshold) {
+                            if(blinksArrHilb[i+2] < minThreshold) {
+                                if (blinksArrHilb[i + 3] > minThreshold / 2) {
+                                    ++numberOfBlinks;
+                                    //Log.d(TAG, String.valueOf(numberOfBlinks));
+                                    //i+=3;
+                                }
+                            }
                         }
                     }
                 }
 
-                if(numberOfBlinks == 1 && (TwoBlinks != 2 || ThreeBlinks != 3)){
+                if(numberOfBlinks == 1){
                     numbersOfSubProccessing = 0;
                 }
 
                 if(numberOfBlinks == 2){
                     TwoBlinks = numberOfBlinks;
+                    numbersOfSubProccessing = 0;
                 }
 
                 if(numberOfBlinks == 3){
                     ThreeBlinks = numberOfBlinks;
+                    TwoBlinks = 0;
+                    numbersOfSubProccessing = 0;
                 }
 
                 ++numbersOfSubProccessing;
@@ -485,7 +493,9 @@ public class MainActivity extends AppCompatActivity {
                 ++numbersOfSubProccessing;
             }
 
-            if(numbersOfSubProccessing > 2 * blinksArrHilbLenght) {
+            //System.out.println(numbersOfSubProccessing + "        " + numberOfBlinks);
+
+            if(numbersOfSubProccessing > 8*blinksArrHilbLenght) {
 
                 if(TwoBlinks == 2 && ThreeBlinks != 3) {
                     Log.d(TAG, "Two blinks was detected");
@@ -498,6 +508,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if(ThreeBlinks == 3) {
+
                     Log.d(TAG, "Three blinks was detected ");
                     showToast("Three blinks was detected", Toast.LENGTH_SHORT);
 
