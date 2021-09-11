@@ -11,9 +11,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -26,10 +28,6 @@ import com.neurosky.connection.TgStreamReader;
 import android.os.Handler;
 import android.os.Message;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -45,10 +43,16 @@ public class MainActivity extends AppCompatActivity {
 
     private Button btn_start = null;
     private Button btn_stop = null;
+    private Button btn_set_blink_thresholds = null;
     private Switch switchDrone = null;
     private GraphView graph1 = null;
     private GraphView graph2 = null;
     private GraphView graph3 = null;
+
+    private double maxBlinkThreshold = 1000;
+    private double minBlinkThreshold = -500;
+    private EditText edTxtMaxBlinkThreshold = null;
+    private EditText edTxtMinBlinkThreshold = null;
 
     private BluetoothAdapter mBluetoothAdapter = null;
     private TgStreamReader tgStreamReader = null;
@@ -127,6 +131,10 @@ public class MainActivity extends AppCompatActivity {
 
         btn_start = (Button) findViewById(R.id.btn_start);
         btn_stop = (Button) findViewById(R.id.btn_stop);
+        btn_set_blink_thresholds = (Button) findViewById(R.id.btn_set_blink_thresholds);
+        edTxtMaxBlinkThreshold = (EditText) findViewById(R.id.edTxtMaxBlinkThreshold);
+        edTxtMinBlinkThreshold = (EditText) findViewById(R.id.edTextMinBlinkThreshold);
+
         switchDrone = (Switch) findViewById(R.id.switchDrone);
 
         graph1 = (GraphView) findViewById(R.id.graph1);
@@ -165,6 +173,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View arg0){
                 tgStreamReader.stop();
                 tgStreamReader.close();
+            }
+        });
+
+        btn_set_blink_thresholds.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                maxBlinkThreshold = Double.valueOf(edTxtMaxBlinkThreshold.getText().toString());
+                minBlinkThreshold = Double.valueOf(edTxtMinBlinkThreshold.getText().toString());
             }
         });
 
@@ -415,10 +431,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Blink detection alg
-    private double maxThreshold = 1000;
-    private double minThreshold = -500;
-
-    private int numbersOfSubProccessing = 0;
+    private int numbersOfSubProcessing = 0;
     private int numberOfBlinks = 0;
     private int TwoBlinks = 0;
     private int ThreeBlinks = 0;
@@ -456,14 +469,14 @@ public class MainActivity extends AppCompatActivity {
             }
             series2.resetData(dataPoints2);
 
-            if(numbersOfSubProccessing < blinksArrHilbLenght) {
+            if(numbersOfSubProcessing < blinksArrHilbLenght) {
 
                 numberOfBlinks = 0;
                 for(int i = 0; i < blinksArrHilbLenght-4; ++i){
-                    if ( blinksArrHilb[i] < minThreshold/4) {
-                        if(blinksArrHilb[i+1] > maxThreshold) {
-                            if(blinksArrHilb[i+2] < minThreshold) {
-                                if (blinksArrHilb[i + 3] > minThreshold / 2) {
+                    if ( blinksArrHilb[i] < minBlinkThreshold/4) {
+                        if(blinksArrHilb[i+1] > maxBlinkThreshold) {
+                            if(blinksArrHilb[i+2] < minBlinkThreshold) {
+                                if (blinksArrHilb[i + 3] > minBlinkThreshold / 2) {
                                     ++numberOfBlinks;
                                     //Log.d(TAG, String.valueOf(numberOfBlinks));
                                     //i+=3;
@@ -474,28 +487,28 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if(numberOfBlinks == 1){
-                    numbersOfSubProccessing = 0;
+                    numbersOfSubProcessing = 0;
                 }
 
                 if(numberOfBlinks == 2){
                     TwoBlinks = numberOfBlinks;
-                    numbersOfSubProccessing = 0;
+                    numbersOfSubProcessing = 0;
                 }
 
                 if(numberOfBlinks == 3){
                     ThreeBlinks = numberOfBlinks;
                     TwoBlinks = 0;
-                    numbersOfSubProccessing = 0;
+                    numbersOfSubProcessing = 0;
                 }
 
-                ++numbersOfSubProccessing;
+                ++numbersOfSubProcessing;
             } else {
-                ++numbersOfSubProccessing;
+                ++numbersOfSubProcessing;
             }
 
             //System.out.println(numbersOfSubProccessing + "        " + numberOfBlinks);
 
-            if(numbersOfSubProccessing > 8*blinksArrHilbLenght) {
+            if(numbersOfSubProcessing > 8*blinksArrHilbLenght) {
 
                 if(TwoBlinks == 2 && ThreeBlinks != 3) {
                     Log.d(TAG, "Two blinks was detected");
@@ -518,7 +531,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                numbersOfSubProccessing = 0;
+                numbersOfSubProcessing = 0;
                 TwoBlinks = 0;
                 ThreeBlinks = 0;
             }
