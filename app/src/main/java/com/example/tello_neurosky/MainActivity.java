@@ -1,9 +1,9 @@
 package com.example.tello_neurosky;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
@@ -11,13 +11,13 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.google.android.material.textfield.TextInputEditText;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -29,6 +29,7 @@ import com.neurosky.connection.TgStreamReader;
 
 import android.os.Handler;
 import android.os.Message;
+import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +38,7 @@ import jwave.Transform;
 import jwave.transforms.FastWaveletTransform;
 import jwave.transforms.wavelets.daubechies.Daubechies2;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btn_start = null;
     private Button btn_stop = null;
     private Button btn_set_blink_thresholds = null;
-    private Switch switchDrone = null;
+    private ToggleButton switchDrone = null;
     private GraphView graph1 = null;
     private GraphView graph2 = null;
     private GraphView graph3 = null;
@@ -97,14 +98,16 @@ public class MainActivity extends AppCompatActivity {
 
     //Fast Wavelet transform class from graetz23 https://github.com/graetz23/JWave
     //But before data
-    double[ ] arrTime = new double[timeAnalysisLength];
-    double[ ] arrHilb = new double[timeAnalysisLength];
+    double[] arrTime = new double[timeAnalysisLength];
+    double[] arrHilb = new double[timeAnalysisLength];
     double[] blinksArrHilb = new double[blinksArrHilbLenght];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_main);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.window_title);
 
         // The Tello drone
         telloDrone = new TelloDrone();
@@ -119,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                         "Please enable your Bluetooth and re-run this program !",
                         Toast.LENGTH_LONG).show();
                 finish();
-				//return;
+                //return;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -144,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         edTxtMaxBlinkThreshold = (EditText) findViewById(R.id.edTxtMaxBlinkThreshold);
         edTxtMinBlinkThreshold = (EditText) findViewById(R.id.edTextMinBlinkThreshold);
 
-        switchDrone = (Switch) findViewById(R.id.switchDrone);
+        switchDrone = (ToggleButton) findViewById(R.id.switchDrone);
 
         graph1 = (GraphView) findViewById(R.id.graph1);
         graph2 = (GraphView) findViewById(R.id.graph2);
@@ -166,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 badPacketCount = 0;
 
                 // isBTConnected
-                if(tgStreamReader != null && tgStreamReader.isBTConnected()){
+                if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
 
                     // Prepare for connecting
                     tgStreamReader.stop();
@@ -180,9 +183,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btn_stop.setOnClickListener(new View.OnClickListener(){
+        btn_stop.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View arg0){
+            public void onClick(View arg0) {
                 tgStreamReader.stop();
                 tgStreamReader.close();
             }
@@ -209,10 +212,9 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // do something, the isChecked will be
                 // true if the switch is in the On position
-                if(isChecked) {
+                if (isChecked) {
                     telloDrone.ready = true;
-                }
-                else {
+                } else {
                     if (telloDrone.isUp) {
                         telloDrone.setCommand("command");
                         telloDrone.setCommand("land");
@@ -226,8 +228,8 @@ public class MainActivity extends AppCompatActivity {
         //graph1.getViewport().setScrollable(true);
 
         graph1.getViewport().setYAxisBoundsManual(true);
-        graph1.getViewport().setMinY(-rawDataLength/2);
-        graph1.getViewport().setMaxY(rawDataLength/2);
+        graph1.getViewport().setMinY(-rawDataLength / 2);
+        graph1.getViewport().setMaxY(rawDataLength / 2);
         // set manual X bounds
         graph1.getViewport().setXAxisBoundsManual(true);
         graph1.getViewport().setMinX(0);
@@ -274,6 +276,7 @@ public class MainActivity extends AppCompatActivity {
         // custom paint to make a dotted line for Thresholds Series
         paintForBlinkThresholdSeries = new Paint();
         paintForBlinkThresholdSeries.setStyle(Paint.Style.STROKE);
+        paintForBlinkThresholdSeries.setColor(Color.WHITE);
         paintForBlinkThresholdSeries.setStrokeWidth(8);
         paintForBlinkThresholdSeries.setPathEffect(new DashPathEffect(new float[]{8, 5}, 0));
         maxBlinkThresholdSeries.setCustomPaint(paintForBlinkThresholdSeries);
@@ -374,14 +377,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onRecordFail(int flag) {
             // You can handle the record error message here
-            Log.e(TAG,"onRecordFail: " +flag);
+            Log.e(TAG, "onRecordFail: " + flag);
 
         }
 
         @Override
         public void onChecksumFail(byte[] payload, int length, int checksum) {
             // You can handle the bad packets here.
-            badPacketCount ++;
+            badPacketCount++;
             Message msg = LinkDetectedHandler.obtainMessage();
             msg.what = MSG_UPDATE_BAD_PACKET;
             msg.arg1 = badPacketCount;
@@ -429,8 +432,8 @@ public class MainActivity extends AppCompatActivity {
                     proccessAttentionData(msg.arg1);
                     break;
                 case MindDataType.CODE_EEGPOWER:
-                    EEGPower power = (EEGPower)msg.obj;
-                    if(power.isValidate()){
+                    EEGPower power = (EEGPower) msg.obj;
+                    if (power.isValidate()) {
                         //tv_delta.setText("" +power.delta);
                         //tv_theta.setText("" +power.theta);
                         //tv_lowalpha.setText("" +power.lowAlpha);
@@ -458,11 +461,9 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public void showToast(final String msg,final int timeStyle){
-        MainActivity.this.runOnUiThread(new Runnable()
-        {
-            public void run()
-            {
+    public void showToast(final String msg, final int timeStyle) {
+        MainActivity.this.runOnUiThread(new Runnable() {
+            public void run() {
                 Toast.makeText(getApplicationContext(), msg, timeStyle).show();
             }
 
@@ -488,7 +489,7 @@ public class MainActivity extends AppCompatActivity {
         }
         series1.resetData(dataPoints1);
 
-        if(!calcWaveletBusy) {
+        if (!calcWaveletBusy) {
 
             // Calling a thread fpr 1-D Fast Wavelet Transform of Daubechies2 forward
             new calcWavelet(arrTime);
@@ -508,13 +509,13 @@ public class MainActivity extends AppCompatActivity {
             }
             series2.resetData(dataPoints2);
 
-            if(numbersOfSubProcessing < blinksArrHilbLenght) {
+            if (numbersOfSubProcessing < blinksArrHilbLenght) {
 
                 numberOfBlinks = 0;
-                for(int i = 0; i < blinksArrHilbLenght-4; ++i){
-                    if ( blinksArrHilb[i] < minBlinkThreshold/4) {
-                        if(blinksArrHilb[i+1] > maxBlinkThreshold) {
-                            if(blinksArrHilb[i+2] < minBlinkThreshold) {
+                for (int i = 0; i < blinksArrHilbLenght - 4; ++i) {
+                    if (blinksArrHilb[i] < minBlinkThreshold / 4) {
+                        if (blinksArrHilb[i + 1] > maxBlinkThreshold) {
+                            if (blinksArrHilb[i + 2] < minBlinkThreshold) {
                                 if (blinksArrHilb[i + 3] > minBlinkThreshold / 2) {
                                     ++numberOfBlinks;
                                     //Log.d(TAG, String.valueOf(numberOfBlinks));
@@ -525,16 +526,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                if(numberOfBlinks == 1){
+                if (numberOfBlinks == 1) {
                     numbersOfSubProcessing = 0;
                 }
 
-                if(numberOfBlinks == 2){
+                if (numberOfBlinks == 2) {
                     TwoBlinks = numberOfBlinks;
                     numbersOfSubProcessing = 0;
                 }
 
-                if(numberOfBlinks == 3){
+                if (numberOfBlinks == 3) {
                     ThreeBlinks = numberOfBlinks;
                     TwoBlinks = 0;
                     numbersOfSubProcessing = 0;
@@ -547,19 +548,19 @@ public class MainActivity extends AppCompatActivity {
 
             //System.out.println(numbersOfSubProccessing + "        " + numberOfBlinks);
 
-            if(numbersOfSubProcessing > 8*blinksArrHilbLenght) {
+            if (numbersOfSubProcessing > 8 * blinksArrHilbLenght) {
 
-                if(TwoBlinks == 2 && ThreeBlinks != 3) {
+                if (TwoBlinks == 2 && ThreeBlinks != 3) {
                     Log.d(TAG, "Two blinks was detected");
                     showToast("Two blinks was detected", Toast.LENGTH_SHORT);
 
-                    if(telloDrone.ready && !telloDrone.isUp) {
+                    if (telloDrone.ready && !telloDrone.isUp) {
                         telloDrone.setCommand("command");
                         telloDrone.setCommand("takeoff");
                     }
                 }
 
-                if(ThreeBlinks == 3) {
+                if (ThreeBlinks == 3) {
 
                     Log.d(TAG, "Three blinks was detected ");
                     showToast("Three blinks was detected", Toast.LENGTH_SHORT);
@@ -590,7 +591,7 @@ public class MainActivity extends AppCompatActivity {
 
         attentionSeries.resetData(attentionPoints);
 
-        if(attention > 70 && telloDrone.isUp && currentMeditation < 50) {
+        if (attention > 70 && telloDrone.isUp && currentMeditation < 50) {
             telloDrone.setCommand("command");
             telloDrone.setCommand("forward 20");
         }
@@ -608,19 +609,22 @@ public class MainActivity extends AppCompatActivity {
 
         meditationSeries.resetData(meditationPoints);
 
-        if(meditation > 70 && telloDrone.isUp && currentAttention < 50) {
+        if (meditation > 70 && telloDrone.isUp && currentAttention < 50) {
             telloDrone.setCommand("command");
             telloDrone.setCommand("back 20");
         }
     }
+
     // The Daubechies 2 fast wavelet transform in another thread for better capacities
     // Seem more and thx for graetz23 https://github.com/graetz23/JWave
     private Boolean calcWaveletBusy = false;
-    Transform wt = new Transform( new FastWaveletTransform( new Daubechies2( ) ) );
+    Transform wt = new Transform(new FastWaveletTransform(new Daubechies2()));
+
     class calcWavelet implements Runnable {
         String name;
         Thread t;
-        calcWavelet (double[ ] arrTime){
+
+        calcWavelet(double[] arrTime) {
             calcWaveletBusy = true;
             name = Thread.currentThread().getName();
             t = new Thread(this, name);
@@ -633,7 +637,7 @@ public class MainActivity extends AppCompatActivity {
                 arrHilb = wt.forward(arrTime);
                 Thread.sleep(10);
 
-            }catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 //System.out.println(name + "Interrupted");
             }
             //System.out.println(name + " exiting.");

@@ -6,7 +6,16 @@
         <entry key="..\:/android/tello-neuroskay/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/android/tello-neurosky/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.22135416666666666" />
         <entry key="..\:/android/tello-neurosky/app/src/main/res/drawable/ic_launcher_background.xml" value="0.22135416666666666" />
-        <entry key="..\:/android/tello-neurosky/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/android/tello-neurosky/app/src/main/res/drawable/ic_toggle.xml" value="0.2203125" />
+        <entry key="..\:/android/tello-neurosky/app/src/main/res/drawable/ic_toggle_bg.xml" value="0.2203125" />
+        <entry key="..\:/android/tello-neurosky/app/src/main/res/drawable/switch_thumb_false.xml" value="0.2203125" />
+        <entry key="..\:/android/tello-neurosky/app/src/main/res/drawable/switch_thumb_true.xml" value="0.2203125" />
+        <entry key="..\:/android/tello-neurosky/app/src/main/res/drawable/thumb.xml" value="0.2203125" />
+        <entry key="..\:/android/tello-neurosky/app/src/main/res/drawable/track.xml" value="0.2203125" />
+        <entry key="..\:/android/tello-neurosky/app/src/main/res/drawable/track_off.xml" value="0.2203125" />
+        <entry key="..\:/android/tello-neurosky/app/src/main/res/drawable/track_on.xml" value="0.2203125" />
+        <entry key="..\:/android/tello-neurosky/app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="..\:/android/tello-neurosky/app/src/main/res/layout/window_title.xml" value="0.33" />
         <entry key="..\:/android/tello-neurosky/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.22135416666666666" />
       </map>
     </option>

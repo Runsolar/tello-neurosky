@@ -30,7 +30,7 @@ public class TelloDrone {
 
     public String setCommand(String command, Runnable callback) {
 
-        System.out.println("Trying command "+command);
+        System.out.println("Trying command " + command);
         if (!ready)
             return null;
 /*
@@ -44,7 +44,7 @@ public class TelloDrone {
                 new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("Command "+command);
+                        System.out.println("Command " + command);
                         if (command.startsWith("takeoff"))
                             isUp = true;
                         else if (command.startsWith("land"))
@@ -65,7 +65,7 @@ public class TelloDrone {
 
                             // Выведите на экране полученные данные
                             String receivedData = new String(receivingPacket.getData());
-                            System.out.println("Response "+receivedData);
+                            System.out.println("Response " + receivedData);
 
                             lastAnswer = receivedData;
 
