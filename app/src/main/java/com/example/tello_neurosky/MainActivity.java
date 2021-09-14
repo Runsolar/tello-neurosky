@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -76,11 +78,18 @@ public class MainActivity extends AppCompatActivity {
     private LineGraphSeries<DataPoint> series1 = null;
     private LineGraphSeries<DataPoint> series2 = null;
 
+    private LineGraphSeries<DataPoint> maxBlinkThresholdSeries = null;
+    private LineGraphSeries<DataPoint> minBlinkThresholdSeries = null;
+    private Paint paintForBlinkThresholdSeries = null;
+
     private LineGraphSeries<DataPoint> attentionSeries = null;
     private LineGraphSeries<DataPoint> meditationSeries = null;
 
     private DataPoint[] dataPoints1;
     private DataPoint[] dataPoints2;
+
+    private DataPoint[] maxBlinkThresholdPoints;
+    private DataPoint[] minBlinkThresholdPoints;
 
     private DataPoint[] attentionPoints;
     private DataPoint[] meditationPoints;
@@ -144,6 +153,9 @@ public class MainActivity extends AppCompatActivity {
         dataPoints1 = new DataPoint[rawData.size()];
         dataPoints2 = new DataPoint[blinksArrHilbLenght];
 
+        maxBlinkThresholdPoints = new DataPoint[blinksArrHilbLenght];
+        minBlinkThresholdPoints = new DataPoint[blinksArrHilbLenght];
+
         attentionPoints = new DataPoint[attentionData.size()];
         meditationPoints = new DataPoint[meditationData.size()];
 
@@ -181,6 +193,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 maxBlinkThreshold = Double.valueOf(edTxtMaxBlinkThreshold.getText().toString());
                 minBlinkThreshold = Double.valueOf(edTxtMinBlinkThreshold.getText().toString());
+
+                for (int i = 0; i < blinksArrHilbLenght; ++i) {
+                    maxBlinkThresholdPoints[i] = new DataPoint(i, maxBlinkThreshold);
+                    minBlinkThresholdPoints[i] = new DataPoint(i, minBlinkThreshold);
+                }
+
+                maxBlinkThresholdSeries.resetData(maxBlinkThresholdPoints);
+                minBlinkThresholdSeries.resetData(minBlinkThresholdPoints);
             }
         });
 
@@ -236,12 +256,31 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < blinksArrHilbLenght; ++i) {
             // add new DataPoint object to the array for each of your list entries
             dataPoints2[i] = new DataPoint(i, 0);
+
+            maxBlinkThresholdPoints[i] = new DataPoint(i, maxBlinkThreshold);
+            minBlinkThresholdPoints[i] = new DataPoint(i, minBlinkThreshold);
         }
         series2 = new LineGraphSeries<DataPoint>(dataPoints2);
         series2.setTitle("Wavelet analysis");
         series2.setColor(Color.GREEN);
         graph2.addSeries(series2);
 
+
+        maxBlinkThresholdSeries = new LineGraphSeries<DataPoint>(maxBlinkThresholdPoints);
+        minBlinkThresholdSeries = new LineGraphSeries<DataPoint>(minBlinkThresholdPoints);
+        //maxBlinkThresholdSeries.setColor(Color.RED);
+        //minBlinkThresholdSeries.setColor(Color.BLUE);
+
+        // custom paint to make a dotted line for Thresholds Series
+        paintForBlinkThresholdSeries = new Paint();
+        paintForBlinkThresholdSeries.setStyle(Paint.Style.STROKE);
+        paintForBlinkThresholdSeries.setStrokeWidth(8);
+        paintForBlinkThresholdSeries.setPathEffect(new DashPathEffect(new float[]{8, 5}, 0));
+        maxBlinkThresholdSeries.setCustomPaint(paintForBlinkThresholdSeries);
+        minBlinkThresholdSeries.setCustomPaint(paintForBlinkThresholdSeries);
+
+        graph2.addSeries(maxBlinkThresholdSeries);
+        graph2.addSeries(minBlinkThresholdSeries);
 
         //graph3.getViewport().setScrollable(true);
         graph3.getViewport().setYAxisBoundsManual(true);
