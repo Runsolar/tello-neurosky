@@ -276,7 +276,7 @@ public class MainActivity extends Activity {
         // custom paint to make a dotted line for Thresholds Series
         paintForBlinkThresholdSeries = new Paint();
         paintForBlinkThresholdSeries.setStyle(Paint.Style.STROKE);
-        paintForBlinkThresholdSeries.setColor(Color.WHITE);
+        paintForBlinkThresholdSeries.setColor(Color.YELLOW);
         paintForBlinkThresholdSeries.setStrokeWidth(8);
         paintForBlinkThresholdSeries.setPathEffect(new DashPathEffect(new float[]{8, 5}, 0));
         maxBlinkThresholdSeries.setCustomPaint(paintForBlinkThresholdSeries);
