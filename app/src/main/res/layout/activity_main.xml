@@ -141,24 +141,24 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <EditText
-        android:id="@+id/editTextNumber3"
+        android:id="@+id/edTextMaxMedThreshold"
         android:layout_width="40dp"
         android:layout_height="25dp"
         android:ems="10"
         android:inputType="number"
         android:paddingTop="0dp"
         android:paddingBottom="6dp"
-        android:text="60"
+        android:text="70"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/btn_stop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.321"
-        app:layout_constraintStart_toEndOf="@+id/editTextNumberDecimal"
+        app:layout_constraintStart_toEndOf="@+id/edTextMinMedThreshold"
         app:layout_constraintTop_toBottomOf="@+id/textView7"
         app:layout_constraintVertical_bias="0.026" />
 
     <EditText
-        android:id="@+id/editTextNumber4"
+        android:id="@+id/edTextMaxAtteThreshold"
         android:layout_width="40dp"
         android:layout_height="25dp"
         android:ems="10"
@@ -187,13 +187,13 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <Button
-        android:id="@+id/btn_set_thersholds2"
+        android:id="@+id/btn_set_bactivity_thresholds"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
         android:layout_marginBottom="32dp"
         android:text="set"
         app:layout_constraintBottom_toTopOf="@+id/btn_start"
-        app:layout_constraintEnd_toStartOf="@+id/editTextNumber4"
+        app:layout_constraintEnd_toStartOf="@+id/edTextMaxAtteThreshold"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/graph3"
@@ -235,7 +235,7 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toStartOf="@+id/textView7"
         app:layout_constraintHorizontal_bias="0.566"
-        app:layout_constraintStart_toEndOf="@+id/btn_set_thersholds2"
+        app:layout_constraintStart_toEndOf="@+id/btn_set_bactivity_thresholds"
         app:layout_constraintTop_toBottomOf="@+id/graph3" />
 
     <TextView
@@ -247,12 +247,12 @@
         app:layout_constraintBottom_toTopOf="@+id/btn_stop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.882"
-        app:layout_constraintStart_toEndOf="@+id/btn_set_thersholds2"
+        app:layout_constraintStart_toEndOf="@+id/btn_set_bactivity_thresholds"
         app:layout_constraintTop_toBottomOf="@+id/graph3"
         app:layout_constraintVertical_bias="0.043" />
 
     <EditText
-        android:id="@+id/editTextNumberDecimal"
+        android:id="@+id/edTextMinMedThreshold"
         android:layout_width="40dp"
         android:layout_height="25dp"
         android:ems="10"
@@ -264,12 +264,12 @@
         app:layout_constraintBottom_toTopOf="@+id/btn_start"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.122"
-        app:layout_constraintStart_toEndOf="@+id/editTextNumber4"
+        app:layout_constraintStart_toEndOf="@+id/edTextMaxAtteThreshold"
         app:layout_constraintTop_toBottomOf="@+id/textView6"
         app:layout_constraintVertical_bias="0.026" />
 
     <EditText
-        android:id="@+id/editTextNumber"
+        android:id="@+id/edTextMinAtteThreshold"
         android:layout_width="40dp"
         android:layout_height="25dp"
         android:ems="10"
@@ -281,7 +281,7 @@
         app:layout_constraintBottom_toTopOf="@+id/btn_stop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.393"
-        app:layout_constraintStart_toEndOf="@+id/editTextNumber3"
+        app:layout_constraintStart_toEndOf="@+id/edTextMaxMedThreshold"
         app:layout_constraintTop_toBottomOf="@+id/textView7"
         app:layout_constraintVertical_bias="0.026" />
 

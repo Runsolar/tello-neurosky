@@ -47,6 +47,8 @@ public class MainActivity extends Activity {
     private Button btn_start = null;
     private Button btn_stop = null;
     private Button btn_set_blink_thresholds = null;
+    private Button btn_set_bactivity_thresholds = null;
+
     private ToggleButton switchDrone = null;
     private GraphView graph1 = null;
     private GraphView graph2 = null;
@@ -56,6 +58,20 @@ public class MainActivity extends Activity {
     private double minBlinkThreshold = -500;
     private EditText edTxtMaxBlinkThreshold = null;
     private EditText edTxtMinBlinkThreshold = null;
+
+    private int attentionAndMeditationDataLength = 100;
+    private int currentAttention = 0;
+    private int currentMeditation = 0;
+
+    private int maxAtteThreshold = 70;
+    private int minAtteThreshold = 50;
+    private int maxMedThreshold = 70;
+    private int minMedThreshold = 50;
+
+    private EditText edTextMaxAtteThreshold = null;
+    private EditText edTextMinAtteThreshold = null;
+    private EditText edTextMaxMedThreshold = null;
+    private EditText edTextMinMedThreshold = null;
 
     private BluetoothAdapter mBluetoothAdapter = null;
     private TgStreamReader tgStreamReader = null;
@@ -67,10 +83,6 @@ public class MainActivity extends Activity {
     private int blinksSeriesEndingEdge = 30;
 
     private int blinksArrHilbLenght = blinksSeriesEndingEdge - blinksSeriesBeginningEdge;
-
-    private int attentionAndMeditationDataLength = 100;
-    private int currentAttention = 0;
-    private int currentMeditation = 0;
 
     private ArrayList<Integer> rawData = new ArrayList<Integer>(Collections.nCopies(rawDataLength, 0)); // 512 Hz - 3 seconds 1536
     private ArrayList<Integer> attentionData = new ArrayList<Integer>(Collections.nCopies(attentionAndMeditationDataLength, 0));
@@ -147,6 +159,12 @@ public class MainActivity extends Activity {
         edTxtMaxBlinkThreshold = (EditText) findViewById(R.id.edTxtMaxBlinkThreshold);
         edTxtMinBlinkThreshold = (EditText) findViewById(R.id.edTextMinBlinkThreshold);
 
+        btn_set_bactivity_thresholds = (Button) findViewById(R.id.btn_set_bactivity_thresholds);
+        edTextMaxAtteThreshold = (EditText) findViewById(R.id.edTextMaxAtteThreshold);
+        edTextMinAtteThreshold = (EditText) findViewById(R.id.edTextMinAtteThreshold);
+        edTextMaxMedThreshold = (EditText) findViewById(R.id.edTextMaxMedThreshold);
+        edTextMinMedThreshold = (EditText) findViewById(R.id.edTextMinMedThreshold);
+
         switchDrone = (ToggleButton) findViewById(R.id.switchDrone);
 
         graph1 = (GraphView) findViewById(R.id.graph1);
@@ -204,6 +222,20 @@ public class MainActivity extends Activity {
 
                 maxBlinkThresholdSeries.resetData(maxBlinkThresholdPoints);
                 minBlinkThresholdSeries.resetData(minBlinkThresholdPoints);
+
+                showToast("New thresholds was set", Toast.LENGTH_SHORT);
+            }
+        });
+
+        btn_set_bactivity_thresholds.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                maxAtteThreshold = Integer.valueOf(edTextMaxAtteThreshold.getText().toString());
+                minAtteThreshold = Integer.valueOf(edTextMinAtteThreshold.getText().toString());
+                maxMedThreshold = Integer.valueOf(edTextMaxMedThreshold.getText().toString());
+                minMedThreshold = Integer.valueOf(edTextMinMedThreshold.getText().toString());
+
+                showToast("New thresholds was set", Toast.LENGTH_SHORT);
             }
         });
 
@@ -214,12 +246,14 @@ public class MainActivity extends Activity {
                 // true if the switch is in the On position
                 if (isChecked) {
                     telloDrone.ready = true;
+                    showToast("The drone goes ready", Toast.LENGTH_SHORT);
                 } else {
                     if (telloDrone.isUp) {
                         telloDrone.setCommand("command");
                         telloDrone.setCommand("land");
                     }
                     telloDrone.ready = false;
+                    showToast("The drone goes unready", Toast.LENGTH_SHORT);
                 }
             }
         });
@@ -419,7 +453,7 @@ public class MainActivity extends Activity {
             // (8) demo of MindDataType
             switch (msg.what) {
                 case MindDataType.CODE_RAW:
-                    proccessDataWave(msg.arg1);
+                    processDataWave(msg.arg1);
                     break;
                 case MindDataType.CODE_MEDITATION:
                     //Log.d(TAG, "HeadDataType.CODE_MEDITATION " + msg.arg1);
@@ -476,7 +510,7 @@ public class MainActivity extends Activity {
     private int TwoBlinks = 0;
     private int ThreeBlinks = 0;
 
-    public void proccessDataWave(int data) {
+    public void processDataWave(int data) {
         rawData.remove(0);
         rawData.add(data);
 
@@ -512,15 +546,15 @@ public class MainActivity extends Activity {
             if (numbersOfSubProcessing < blinksArrHilbLenght) {
 
                 numberOfBlinks = 0;
-                for (int i = 0; i < blinksArrHilbLenght - 4; ++i) {
+                for (int i = 0; i < blinksArrHilbLenght - 3; ++i) {
                     if (blinksArrHilb[i] < minBlinkThreshold / 4) {
                         if (blinksArrHilb[i + 1] > maxBlinkThreshold) {
                             if (blinksArrHilb[i + 2] < minBlinkThreshold) {
-                                if (blinksArrHilb[i + 3] > minBlinkThreshold / 2) {
+                                //if (blinksArrHilb[i + 3] > minBlinkThreshold / 2) {
                                     ++numberOfBlinks;
                                     //Log.d(TAG, String.valueOf(numberOfBlinks));
                                     //i+=3;
-                                }
+                                //}
                             }
                         }
                     }
@@ -591,7 +625,7 @@ public class MainActivity extends Activity {
 
         attentionSeries.resetData(attentionPoints);
 
-        if (attention > 70 && telloDrone.isUp && currentMeditation < 50) {
+        if (attention > maxAtteThreshold && telloDrone.isUp && currentMeditation < minMedThreshold) {
             telloDrone.setCommand("command");
             telloDrone.setCommand("forward 20");
         }
@@ -609,7 +643,7 @@ public class MainActivity extends Activity {
 
         meditationSeries.resetData(meditationPoints);
 
-        if (meditation > 70 && telloDrone.isUp && currentAttention < 50) {
+        if (meditation > maxMedThreshold && telloDrone.isUp && currentAttention < minAtteThreshold) {
             telloDrone.setCommand("command");
             telloDrone.setCommand("back 20");
         }
