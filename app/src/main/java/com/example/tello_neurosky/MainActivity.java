@@ -546,17 +546,17 @@ public class MainActivity extends Activity {
             if (numbersOfSubProcessing < blinksArrHilbLenght) {
 
                 numberOfBlinks = 0;
-                for (int i = 0; i < blinksArrHilbLenght - 3; ++i) {
-                    if (blinksArrHilb[i] < minBlinkThreshold / 4) {
-                        if (blinksArrHilb[i + 1] > maxBlinkThreshold) {
-                            if (blinksArrHilb[i + 2] < minBlinkThreshold) {
+                for (int i = 0; i < blinksArrHilbLenght - 2; ++i) {
+                    //if (blinksArrHilb[i] < minBlinkThreshold / 4) {
+                        if (blinksArrHilb[i] > maxBlinkThreshold) {
+                            if (blinksArrHilb[i + 1] < minBlinkThreshold) {
                                 //if (blinksArrHilb[i + 3] > minBlinkThreshold / 2) {
                                     ++numberOfBlinks;
                                     //Log.d(TAG, String.valueOf(numberOfBlinks));
                                     //i+=3;
                                 //}
                             }
-                        }
+                        //}
                     }
                 }
 
@@ -591,6 +591,11 @@ public class MainActivity extends Activity {
                     if (telloDrone.ready && !telloDrone.isUp) {
                         telloDrone.setCommand("command");
                         telloDrone.setCommand("takeoff");
+                    }
+
+                    if (telloDrone.ready && telloDrone.isUp) {
+                        telloDrone.setCommand("command");
+                        telloDrone.setCommand("cw 10");
                     }
                 }
 
