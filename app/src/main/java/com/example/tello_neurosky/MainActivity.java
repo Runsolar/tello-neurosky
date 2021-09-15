@@ -63,9 +63,9 @@ public class MainActivity extends Activity {
     private int currentAttention = 0;
     private int currentMeditation = 0;
 
-    private int maxAtteThreshold = 70;
+    private int maxAtteThreshold = 60;
     private int minAtteThreshold = 50;
-    private int maxMedThreshold = 70;
+    private int maxMedThreshold = 60;
     private int minMedThreshold = 50;
 
     private EditText edTextMaxAtteThreshold = null;
